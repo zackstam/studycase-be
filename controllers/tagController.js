@@ -33,6 +33,31 @@ const all = async (req, res, next) => {
     }
 }
 
+const paginate = async (req, res, next) => {
+    try {
+        const limit = parseInt(req.query.limit);
+        const page = parseInt(req.query.page);
+        const name = req.query.name || '';
+        const skip = (page - 1) * limit;
+        const data = await Tag.find({ "name": { $regex: `${name}` } })
+                    .skip(skip)
+                    .limit(limit);
+        const count = await Tag.find({ "name": { $regex: `${name}` } }).countDocuments();
+        if (data && data.length === number.ZERO) {
+            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
+            return next(error);
+        }
+        return res.status(200).json({ message: generalMessage.SUCCESS, data: {
+            tags: data,
+            count
+        } });
+    } catch (error) {
+        console.log(error);
+        const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
+        return next(err)
+    }
+}
+
 const create = async (req, res, next) => {
 
     try {
@@ -75,6 +100,7 @@ const destroy = async (req, res, next) => {
 }
 
 module.exports = {
+    paginate,
     byId,
     all,
     create,

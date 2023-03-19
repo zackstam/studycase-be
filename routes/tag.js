@@ -5,6 +5,7 @@ const tagMiddleware = require('../middleware/tagMiddleware');
 const router = express.Router();
 
 
+router.get('/paginate', tagController.paginate);
 router.get('/:pid',tagMiddleware.validateById, tagController.byId)
 router.get('/', tagController.all);
 router.post('/', tagController.create);
