@@ -1,5 +1,5 @@
 const HttpError = require('../interface/httpError');
-const Tag = require('../models/tag');
+const Product = require('../models/product');
 const { DATA_NOT_FOUND_CODE, GENERAL_ERROR_CODE } = require('../constant/errorCode');
 const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
 const { DATA_NOT_FOUND_MESSAGE, GENERAL_ERROR_MESSAGE } = require('../constant/errorMessage');
@@ -10,8 +10,8 @@ const { number, generalMessage } = require('../constant/app');
 const byId = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        const dataTag = await Tag.findById(id);
-        return res.status(number.TWO_HUNDRED).json({ message: generalMessage.SUCCESS, data: dataTag});
+        const dataProduct = await Product.findById(id);
+        return res.status(number.TWO_HUNDRED).json({ message: generalMessage.SUCCESS, data: dataProduct});
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -21,7 +21,7 @@ const byId = async (req, res, next) => {
 
 const all = async (req, res, next) => {
     try {
-        const data = await Tag.find();
+        const data = await Product.find();
         if (data && data.length === number.ZERO) {
             const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
             return next(error);
@@ -39,16 +39,16 @@ const paginate = async (req, res, next) => {
         const page = parseInt(req.query.page);
         const name = req.query.name || '';
         const skip = (page - 1) * limit;
-        const data = await Tag.find({ "name": { $regex: `${name}` } })
+        const data = await Product.find({ "name": { $regex: `${name}` } })
                     .skip(skip)
                     .limit(limit);
-        const count = await Tag.find({ "name": { $regex: `${name}` } }).countDocuments();
+        const count = await Product.find({ "name": { $regex: `${name}` } }).countDocuments();
         if (data && data.length === number.ZERO) {
             const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
             return next(error);
         }
         return res.status(200).json({ message: generalMessage.SUCCESS, data: {
-            tags: data,
+            Products: data,
             count
         } });
     } catch (error) {
@@ -60,12 +60,15 @@ const paginate = async (req, res, next) => {
 const create = async (req, res, next) => {
 
     try {
-        const payloadTag = new Tag({
-            name: req.body.name
+        const payloadProduct = new Product({
+            name: req.body.name,
+            image: req.body.image
+
         })
-        const data = await payloadTag.save();
-        return res.status(200).json({ message: generalMessage.SUCCESS, data });
+        const data = await payloadProduct.save();
+        return res.status(200).json({ message: generalMessage.SUCCESS, data: req.body.name });
     } catch (error) {
+        console.log(error);
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err);
     }
@@ -75,10 +78,10 @@ const update = async (req, res, next) => {
     const id = req.params.pid;
     const { name } = req.body;
     try {
-        let dataTag = await Tag.findByIdAndUpdate(id, { name }, {
+        let dataProduct = await Product.findByIdAndUpdate(id, { name }, {
             new: true
         });
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: dataTag });
+        return res.status(200).json({ message: generalMessage.SUCCESS, data: dataProduct });
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)
@@ -87,9 +90,9 @@ const update = async (req, res, next) => {
 }
 
 const destroy = async (req, res, next) => {
-    const tagId = req.params.pid;
+    const ProductId = req.params.pid;
     try {
-        await Tag.findByIdAndRemove(tagId);
+        await Product.findByIdAndRemove(ProductId);
         return res.status(200).json({ message: generalMessage.SUCCESS, data: true });
 
     } catch (error) {
