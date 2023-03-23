@@ -10,8 +10,9 @@ const { number, generalMessage } = require('../constant/app');
 const byId = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        const dataTag = await Tag.findById(id);
-        return res.status(number.TWO_HUNDRED).json({ message: generalMessage.SUCCESS, data: dataTag});
+        const data = await Tag.findById(id);
+        req.data = data
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -22,11 +23,8 @@ const byId = async (req, res, next) => {
 const all = async (req, res, next) => {
     try {
         const data = await Tag.find();
-        if (data && data.length === number.ZERO) {
-            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
-            return next(error);
-        }
-        return res.status(200).json({ message: generalMessage.SUCCESS, data });
+        req.data = data
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -44,13 +42,14 @@ const paginate = async (req, res, next) => {
                     .limit(limit);
         const count = await Tag.find({ "name": { $regex: `${name}` } }).countDocuments();
         if (data && data.length === number.ZERO) {
-            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
-            return next(error);
+            req.data = null;
+            next();
         }
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: {
+        req.data = {
             tags: data,
             count
-        } });
+        };
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)

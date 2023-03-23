@@ -26,7 +26,9 @@ const all = async (req, res, next) => {
             const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
             return next(error);
         }
-        return res.status(200).json({ message: generalMessage.SUCCESS, data });
+        req.data = data;
+        next()
+        // return res.status(200).json({ message: generalMessage.SUCCESS, data });
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -66,7 +68,8 @@ const create = async (req, res, next) => {
 
         })
         const data = await payloadProduct.save();
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: req.body.name });
+        req.data = data;
+        next();
     } catch (error) {
         console.log(error);
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
