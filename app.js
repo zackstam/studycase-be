@@ -20,7 +20,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+require('./middleware/passport-local-strategy');
 
+
+require('./middleware/passport-jwt-strategy');
 app.use(indexRouter);
 
 app.use(ResponseMiddleware.response)

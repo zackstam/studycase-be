@@ -9,7 +9,6 @@ var debug = require('debug')('studycase-backend-ferdy:server');
 var http = require('http');
 const mongoose = require('mongoose');
 const { dbHost, dbPort, dbName } = require('../config');
-console.log(dbHost, dbPort, dbName);
 const urlConnection = `mongodb://${dbHost}:${dbPort}/${dbName}`
 /**
  * Get port from environment and store in Express.

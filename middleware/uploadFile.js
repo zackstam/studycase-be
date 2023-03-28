@@ -11,7 +11,9 @@ const storage = multer.diskStorage({
 })
 
 const getFileName = (req, res, next) => {
-  req.body[req.file.fieldname] = req.file.filename || null
+  if (req.file) {
+    req.body[req.file.fieldname] = req.file.filename || null
+  }
   return next();
 }
 

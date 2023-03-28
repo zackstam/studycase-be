@@ -2,9 +2,18 @@ const express = require('express');
 const productController = require('../controllers/productController')
 const uploadFileMiddleware = require('../middleware/uploadFile');
 const multer  = require('multer');
+const mime = require('mime');
 
 const router = express.Router();
-const upload = multer({ storage: uploadFileMiddleware.storage })
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public/uploads/products')
+    },
+    filename: function (req, file, cb) {
+      cb(null, `product-${  Date.now()  }${Math.floor(Math.random() * 100)}.${  mime.getExtension(file.mimetype)}`);
+    }
+  })
+const upload = multer({ storage })
 
 // router.get('/paginate', productController.paginate);
 // router.get('/:pid',tagMiddleware.validateById, productController.byId)

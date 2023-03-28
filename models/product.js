@@ -3,10 +3,15 @@ const { Schema } = mongoose;
 const { dbHost, portApp, product } = require('../config');
 
 const productSchema = new Schema({
-  name:  { type: String, required: true }, // String is shorthand for {type: String}
+  name:  { 
+      type: String,
+      required: true,
+      set: v => {
+        return v.toLowerCase() 
+      } 
+  }, // String is shorthand for {type: String}
   image:  { 
     type: String, 
-    required: true,
     get: (data) => `${dbHost}:${portApp}/${product}`  + data
   }
 }, { toJSON: { getters: true } });

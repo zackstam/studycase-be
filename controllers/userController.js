@@ -1,5 +1,7 @@
 const HttpError = require('../interface/httpError');
-const Product = require('../models/product');
+const User = require('../models/user');
+const { hashing } = require('../utility/utility');
+
 const { DATA_NOT_FOUND_CODE, GENERAL_ERROR_CODE } = require('../constant/errorCode');
 const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
 const { DATA_NOT_FOUND_MESSAGE, GENERAL_ERROR_MESSAGE } = require('../constant/errorMessage');
@@ -10,8 +12,9 @@ const { number, generalMessage } = require('../constant/app');
 const byId = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        const dataProduct = await Product.findById(id);
-        return res.status(number.TWO_HUNDRED).json({ message: generalMessage.SUCCESS, data: dataProduct});
+        const data = await User.findById(id);
+        req.data = data
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -21,10 +24,9 @@ const byId = async (req, res, next) => {
 
 const all = async (req, res, next) => {
     try {
-        const data = await Product.find();
-        req.data = data;
-        next()
-        // return res.status(200).json({ message: generalMessage.SUCCESS, data });
+        const data = await User.find();
+        req.data = data
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -37,16 +39,16 @@ const paginate = async (req, res, next) => {
         const page = parseInt(req.query.page);
         const name = req.query.name || '';
         const skip = (page - 1) * limit;
-        const data = await Product.find({ "name": { $regex: `${name}` } })
+        const data = await User.find({ "name": { $regex: `${name}` } })
                     .skip(skip)
                     .limit(limit);
-        const count = await Product.find({ "name": { $regex: `${name}` } }).countDocuments();
+        const count = await User.find({ "name": { $regex: `${name}` } }).countDocuments();
         if (data && data.length === number.ZERO) {
-            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
-            return next(error);
+            req.data = null;
+            next();
         }
         req.data = {
-            Products: data,
+            tags: data,
             count
         };
         next();
@@ -59,16 +61,20 @@ const paginate = async (req, res, next) => {
 const create = async (req, res, next) => {
 
     try {
-        const payloadProduct = new Product({
+        const hashedPassword = await hashing(req.body.password);
+        const user = new User({
             name: req.body.name,
-            image: req.body.image
-
+            username: req.body.username,
+            email: req.body.email,
+            password: hashedPassword
         })
-        const data = await payloadProduct.save();
+
+        const data = await user.save();
         req.data = data;
         next();
     } catch (error) {
         console.log(error);
+
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err);
     }
@@ -78,10 +84,10 @@ const update = async (req, res, next) => {
     const id = req.params.pid;
     const { name } = req.body;
     try {
-        let dataProduct = await Product.findByIdAndUpdate(id, { name }, {
+        const user = await User.findByIdAndUpdate(id, { name }, {
             new: true
         });
-        req.data = dataProduct;
+        req.data = user;
         next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
@@ -91,11 +97,12 @@ const update = async (req, res, next) => {
 }
 
 const destroy = async (req, res, next) => {
-    const ProductId = req.params.pid;
+    const tagId = req.params.pid;
     try {
-        await Product.findByIdAndRemove(ProductId);
+        await User.findByIdAndRemove(tagId);
         req.data = true;
         next();
+
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)
