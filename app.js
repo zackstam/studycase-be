@@ -5,9 +5,10 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors')
 
-const routerProduct = require('./routes/routeProduct')
-const routerCategory = require('./routes/routeCategory')
-const routerTag = require('./routes/routeTag')
+// const routerProduct = require('./routes/routeProduct')
+// const routerCategory = require('./routes/routeCategory')
+// const routerTag = require('./routes/routeTag')
+const routerIndex = require('./routes/index')
 
 var app = express();
 const { NOT_FOUND_PATH } = require('./constant/errorCode');
@@ -25,16 +26,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(routerProduct)
-app.use(routerCategory)
-app.use(routerTag)
+require('./middleware/passport-local-strategy');
+require('./middleware/passport-jwt-strategy');
+app.use(routerIndex)
 
 //render home
-app.use(function(req, res) {
-  res.render('index', {
-    title: 'Studycase API Service'
-  })
-})
+// app.use(function(req, res) {
+//   res.render('index', {
+//     title: 'Studycase API Service'
+//   })
+// })
 
 
 // catch 404 and forward to error handler

@@ -4,11 +4,11 @@ const categoryMiddleware = require('../middleware/categoryMiddleware')
 
 const router = express.Router()
 
-router.get('/category', categoryController.all)
-router.get('/category', categoryController.pagination)
-router.get('/category/:id', categoryMiddleware.validateById, categoryController.byId)
-router.post('/category', categoryController.create)
-router.patch('/category/:id', categoryMiddleware.validateById, categoryController.update)
-router.delete('/category/:id', categoryMiddleware.validateById, categoryController.destroy)
+router.get('/', categoryController.all)
+router.get('/pagination', categoryController.pagination)
+router.get('/:id', categoryMiddleware.validateById, categoryController.byId)
+router.post('/', categoryController.create)
+router.patch('/:id', categoryMiddleware.validateById, categoryController.update)
+router.delete('/:id', categoryMiddleware.validateById, categoryController.destroy)
 
 module.exports = router

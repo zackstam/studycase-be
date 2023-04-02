@@ -6,11 +6,11 @@ const { DATA_NOT_FOUND_MESSAGE, GENERAL_ERROR_MESSAGE } = require('../constant/e
 const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
-    let payload = new Category(req.body)
-    console.log(req.body)
     try {
-        let addCategory = await payload.save();
-        return res.json( addCategory );
+        const { name } = req.body;
+        const data = new Category({name});
+        await data.save();
+            return res.status(200).json({ message: generalMessage.SUCCESS, data: data });
     } catch(err) {
         const error = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER);
         next(error)
@@ -68,15 +68,27 @@ const destroy = async (req, res, next) => {
 
 const pagination = async (req, res, next) => {
     try{
-        let { page, limit } = req.query;
-        const showallCategory = await Category
-        .find()
-        .page(parseInt(page))
+        let { skip = 0, limit = 10, q = ''} = req.query;
+
+        let criteria = {};
+
+        if(q.length){
+            criteria = {
+                ...criteria,
+                name: {$regex: `${q}`, $options: 'i'}
+            }
+        }
+
+        let count = await Category.find().countDocuments();
+        let data = await Category
+        .find(criteria)
+        .skip(parseInt(skip))
         .limit(parseInt(limit));
-        return res.status(200).json({ message: generalMessage.SUCCESS, showallCategory });
-    }catch(err){
-        const error = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
-        return next(error);
+        
+        return res.status(200).json({ message: generalMessage.SUCCESS, data: data, count });
+    }catch (error) {
+        const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
+        return next(err)
     }
 }
 

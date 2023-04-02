@@ -4,11 +4,11 @@ const tagMiddleware = require('../middleware/tagMiddleware')
 
 const router = express.Router()
 
-router.get('/tag', tagController.all)
-router.get('/tag', tagController.pagination)
-router.get('/tag/:id', tagMiddleware.validateById, tagController.byId)
-router.post('/tag', tagController.create)
-router.patch('/tag/:id', tagMiddleware.validateById, tagController.update)
-router.delete('/tag/:id', tagMiddleware.validateById, tagController.destroy)
+router.get('/', tagController.all)
+router.get('/pagination', tagController.pagination)
+router.get('/:id', tagMiddleware.validateById, tagController.byId)
+router.post('/', tagController.create)
+router.patch('/:id', tagMiddleware.validateById, tagController.update)
+router.delete('/:id', tagMiddleware.validateById, tagController.destroy)
 
 module.exports = router
