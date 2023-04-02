@@ -34,8 +34,7 @@ mongoose.connect(urlConnection)
   server.on('listening', onListening);
 })
 .catch(err => {
-    console.log('ada error ');
-    console.log(err);
+
 })
 
 

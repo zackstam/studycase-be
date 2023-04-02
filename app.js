@@ -9,7 +9,7 @@ const { NOT_FOUND_PATH } = require('./constant/errorCode');
 const { NOT_FOUND, ERROR_SERVER } = require('./constant/errorHttp');
 const { PATH_NOT_FOUND } = require('./constant/errorMessage');
 const HttpError = require('./interface/httpError');
-const ResponseMiddleware = require('./middleware/responseMiddleware')
+const ResponseMiddleware = require('./middleware/responseMiddleware');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

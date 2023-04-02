@@ -18,6 +18,7 @@ passport.use(
           const user = await User.findOne({
               username,
           });
+          console.log(user, 'AA');
           if (!user) {
               return done(null, false, { message: errorMessage.UN_AUTHENTICATED });
           }

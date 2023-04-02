@@ -13,6 +13,11 @@ const authorized = (req, res, next) => {
         const error = new HttpError(UNAUTHORIZED_USER, NOT_AUTHENTICATED_CODE, UNAUTHORIZED);
         return next(error);
       } else {
+        req.user = {
+          name: user.name,
+          userId: user._id,
+          role: user.role
+        }
         return next();
       }
     })(req, res, next);

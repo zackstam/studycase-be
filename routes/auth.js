@@ -14,6 +14,7 @@ router.post(
       async (err, user, info) => {
         try {
           if (err || !user) {
+            console.log('eror');
             const error = new HttpError(info.message, NOT_AUTHENTICATED_CODE, UNAUTHORIZED);
             return next(error);
           }

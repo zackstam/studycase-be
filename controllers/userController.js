@@ -66,6 +66,7 @@ const create = async (req, res, next) => {
             name: req.body.name,
             username: req.body.username,
             email: req.body.email,
+            role: 'user',
             password: hashedPassword
         })
 
@@ -74,7 +75,6 @@ const create = async (req, res, next) => {
         next();
     } catch (error) {
         console.log(error);
-
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err);
     }
@@ -82,7 +82,7 @@ const create = async (req, res, next) => {
 
 const update = async (req, res, next) => {
     const id = req.params.pid;
-    const { name } = req.body;
+    const { name, role } = req.body;
     try {
         const user = await User.findByIdAndUpdate(id, { name }, {
             new: true
