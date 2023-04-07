@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const { Schema } = require('mongoose')
-const { portApp, product, dbHost } = require('../app/config');
+const { portApp, product, dbHost } = require('../config/index');
 
 const productSchema = new Schema ({
     name:{

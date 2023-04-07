@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { dbUser, dbPass, dbHost, dbPort, dbName } = require('../app/config')
+const { dbUser, dbPass, dbHost, dbPort, dbName } = require('../config/index')
 
 mongoose.connect(`mongodb://${dbUser}:${dbPass}@${dbHost}:${dbPort}/${dbName}?authSource=admin`)
 

@@ -5,7 +5,7 @@ const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
 const { DATA_NOT_FOUND_MESSAGE, GENERAL_ERROR_MESSAGE } = require('../constant/errorMessage');
 
 const validateById = async (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.pid;
     try {
         const dataCategory = await Category.findById(id);
         if (!dataCategory) {

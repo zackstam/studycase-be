@@ -4,7 +4,7 @@ const JWTstrategy = require('passport-jwt').Strategy;
 const ExtractJWT = require('passport-jwt').ExtractJwt;
 const User = require('../models/userModel');
 const passport = require('passport');
-// const HttpError = require('../interface/httpError');
+const errorMessage = require('../constant/errorMessage');
 
 passport.use(
   new JWTstrategy(
@@ -17,7 +17,7 @@ passport.use(
           const { userId, name } = token;
           const user = await User.findOne({ name });
           if (user) {
-              return done(null, token);
+              return done(null, user);
           }
           return done(null, false, { message: errorMessage.UN_AUTHENTICATED });
       } catch (error) {

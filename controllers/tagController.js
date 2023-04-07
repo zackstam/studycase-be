@@ -6,11 +6,13 @@ const { DATA_NOT_FOUND_MESSAGE, GENERAL_ERROR_MESSAGE } = require('../constant/e
 const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
-    try{
+    try {
         const { name } = req.body;
-        const data = new Tag({name});
-        await data.save();
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: data });
+        const payload = new Tag({name});
+        const data = await payload.save();
+        
+        req.data = data;
+        next();
     } catch(err) {
         const error = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER);
         next(error)
@@ -20,10 +22,9 @@ const create = async (req, res, next) => {
 const all = async (req, res, next) => {
     try{
         const data = await Tag.find();
-        if (data && data.length === number.ZERO) {
-            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
-            return next(error);
-        }return res.status(200).json({ message: generalMessage.SUCCESS, data });
+        
+        req.data = data;
+        next();
     }catch(err){
         const error = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(error)
@@ -31,10 +32,12 @@ const all = async (req, res, next) => {
 }
 
 const byId = async (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.pid;
     try {
-        const findbyIDTag = await Tag.findById(id);
-        return res.status(number.TWO_HUNDRED).json({ message: generalMessage.SUCCESS, data: findbyIDTag});
+        const data = await Tag.findById(id);
+
+        req.data = data;
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -42,13 +45,15 @@ const byId = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.pid;
     const { name } = req.body;
     try {
-        let dataTag = await Tag.findByIdAndUpdate(id, { name }, {
+        const data = await Tag.findByIdAndUpdate(id, { name }, {
             new: true
         });
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: dataTag });
+        
+        req.data = data;
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)
@@ -56,10 +61,12 @@ const update = async (req, res, next) => {
 }
 
 const destroy = async (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.pid;
     try {
         await Tag.findByIdAndRemove(id);
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: true });
+        
+        req.data = true;
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)
@@ -85,7 +92,11 @@ const pagination = async (req, res, next) => {
         .skip(parseInt(skip))
         .limit(parseInt(limit));
         
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: data, count });
+        req.data = {
+            Category: data,
+            count
+        };
+        next();
     }catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)

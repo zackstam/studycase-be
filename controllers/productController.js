@@ -13,7 +13,7 @@ const create = async (req, res, next) => {
 
         const categories = await Category.findOne({ name: req.body.category });
         const tags = await Tag.find({ name: { $in: req.body.tag } });
-        const data = new Product({
+        const payload = new Product({
             name: name,
             description: description,
             price: price,
@@ -21,8 +21,10 @@ const create = async (req, res, next) => {
             category: categories._id,
             tag: tags.map(tag => tag._id)
         });
-        await data.save();
-            return res.status(200).json({ message: generalMessage.SUCCESS, data: data });
+        const data = await payload.save();
+        
+        req.data = data;
+        next();
     } catch(err) {
         const error = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER);
         next(error)
@@ -32,10 +34,9 @@ const create = async (req, res, next) => {
 const all = async (req, res, next) => {
     try{
         const data = await Product.find().populate('category').populate('tag');
-        if (data && data.length === number.ZERO) {
-            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
-            return next(error);
-        }return res.status(200).json({ message: generalMessage.SUCCESS, data });
+        
+        req.data = data;
+        next();
     }catch(err){
         const error = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(error)
@@ -43,10 +44,12 @@ const all = async (req, res, next) => {
 }
 
 const byId = async (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.pid;
     try {
-        const findbyIDProduct = await Product.findById(id).populate('category').populate('tag');
-        return res.status(number.TWO_HUNDRED).json({ message: generalMessage.SUCCESS, data: findbyIDProduct});
+        const data = await Product.findById(id).populate('category').populate('tag');
+        
+        req.data = data;
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, ERROR_SERVER);
         return next(err)
@@ -55,36 +58,36 @@ const byId = async (req, res, next) => {
 
 const update = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const id = req.params.pid;
         const { name, description, price, image, category, tag } = req.body;
 
-        const data = await Product.findByIdAndUpdate(id).populate('category').populate('tag');
-
-        if (!data) {
-            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
-            return next(error);
-        }
-
-        data.name = name;
-        data.description = description;
-        data.price = price;
-        data.image = image;
-        data.category.category = category;
-        data.tag.tag = tag;
+        const categories = await Category.findOne({ name: req.body.category });
+        const tags = await Tag.find({ name: { $in: req.body.tag } });
+        const data = await Product.findByIdAndUpdate(id, {
+            name: name,
+            description: description,
+            price: price,
+            image: image,
+            category: categories._id,
+            tag: tags.map(tag => tag._id)
+        }, { new: true });
 
         await data.save();
-            return res.status(200).json({ message: generalMessage.SUCCESS, data: data });
+            req.data = data;
+            next();
         } catch (error) {
-            const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
+            const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER);
             return next(err)
         }
 }
 
 const destroy = async (req, res, next) => {
-    const id = req.params.id;
+    const id = req.params.pid;
     try {
         await Product.findByIdAndRemove(id);
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: true });
+        
+        req.data = true;
+        next();
     } catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)
@@ -128,7 +131,11 @@ const pagination = async (req, res, next) => {
         .populate('category')
         .populate('tag');
         
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: data, count });
+        req.data = {
+            Products: data,
+            count
+        }
+        next();
     }catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)
