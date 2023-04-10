@@ -5,12 +5,14 @@ const productRoutes = require('../routes/product');
 const userRoutes = require('../routes/users');
 const authRoutes = require('../routes/auth');
 const categoryRoutes = require('../routes/category')
+const deliveryAddressRoutes = require('../routes/deliveryAddress')
 const router = express.Router();
 
 router.use('/category', categoryRoutes);
 router.use('/tag', tagRoutes);
 router.use('/product', productRoutes);
 router.use('/user', userRoutes);
+router.use('/address', deliveryAddressRoutes);
 router.use('/auth', authRoutes);
 
 

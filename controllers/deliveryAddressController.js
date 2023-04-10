@@ -1,6 +1,5 @@
-const Product = require('../models/productModel')
-const Category = require('../models/categoriesModel')
-const Tag = require('../models/tagModel')
+const DeliveryAddress = require('../models/deliveryAddressModel')
+const User = require('../models/userModel')
 const HttpError = require('../interface/httpError');
 const { DATA_NOT_FOUND_CODE, GENERAL_ERROR_CODE } = require('../constant/errorCode');
 const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
@@ -9,15 +8,16 @@ const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
     try {
-        const { name, description, price, image, category, tag } = req.body;
+        const { nama, provinsi, kabupaten, kecamatan, kelurahan, detail, user } = req.body;
 
-        const payload = new Product({
-            name: name,
-            description: description,
-            price: price,
-            image: image,
-            category: category,
-            tag: tag
+        const payload = new DeliveryAddress({
+            nama: nama,
+            provinsi: provinsi,
+            kabupaten: kabupaten,
+            kecamatan: kecamatan,
+            kelurahan: kelurahan,
+            detail: detail,
+            user: user
         });
         const data = await payload.save();
         
@@ -31,7 +31,7 @@ const create = async (req, res, next) => {
 
 const all = async (req, res, next) => {
     try{
-        const data = await Product.find().populate('category').populate('tag');
+        const data = await DeliveryAddress.find().populate('user');
         
         req.data = data;
         next();
@@ -44,7 +44,7 @@ const all = async (req, res, next) => {
 const byId = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        const data = await Product.findById(id).populate('category').populate('tag');
+        const data = await DeliveryAddress.findById(id).populate('user');
         
         req.data = data;
         next();
@@ -57,15 +57,16 @@ const byId = async (req, res, next) => {
 const update = async (req, res, next) => {
     try {
         const id = req.params.pid;
-        const { name, description, price, image, category, tag } = req.body;
+        const { nama, provinsi, kabupaten, kecamatan, kelurahan, detail, user } = req.body;
 
-        const data = await Product.findByIdAndUpdate(id, {
-            name: name,
-            description: description,
-            price: price,
-            image: image,
-            category: category,
-            tag: tag
+        const data = await DeliveryAddress.findByIdAndUpdate(id, {
+            nama: nama,
+            provinsi: provinsi,
+            kabupaten: kabupaten,
+            kecamatan: kecamatan,
+            kelurahan: kelurahan,
+            detail: detail,
+            user: user
         }, { new: true });
 
         await data.save();
@@ -80,7 +81,7 @@ const update = async (req, res, next) => {
 const destroy = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        await Product.findByIdAndRemove(id);
+        await DeliveryAddress.findByIdAndRemove(id);
         
         req.data = true;
         next();
@@ -92,7 +93,7 @@ const destroy = async (req, res, next) => {
 
 const pagination = async (req, res, next) => {
     try{
-        let { skip = '', limit = '', page = '', q = '', category = '', tag = '' } = req.query;
+        let { skip = '', limit = '', page = '', q = '', user = '' } = req.query;
 
         let criteria = {};
 
@@ -103,32 +104,24 @@ const pagination = async (req, res, next) => {
             }
         }
 
-        if(category.length){
-            let categories = await Category.find({name: {$in: category}});
+        if(user.length){
+            let users = await User.find({name: {$in: user}});
 
-            if(categories){
-                criteria = {...criteria, category: {$in: categories.map(category => category._id)}};
-            }
-        }
-        if(tag.length){
-            let tags = await Tag.find({name: {$in: tag}});
-
-            if(tags.length > 0){
-                criteria = {...criteria, tag: {$in: tags.map(tag => tag._id)}};
+            if(users){
+                criteria = {...criteria, user: {$in: users.map(user => user._id)}};
             }
         }
 
-        let count = await Product.find().countDocuments();
-        let data = await Product
+        let count = await DeliveryAddress.find().countDocuments();
+        let data = await DeliveryAddress
         .find(criteria)
         .skip(parseInt(skip))
         .limit(parseInt(limit))
         .page(parseInt(page))
-        .populate('category')
-        .populate('tag');
+        .populate('user');
         
         req.data = {
-            Products: data,
+            DeliveryAddress: data,
             count
         }
         next();

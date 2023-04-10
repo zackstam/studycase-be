@@ -58,7 +58,7 @@ const paginate = async (req, res, next) => {
     }
 }
 
-const createAdmin = async (req, res, next) => {
+const create = async (req, res, next) => {
 
     try {
         const hashedPassword = await hashing(req.body.password);
@@ -67,30 +67,7 @@ const createAdmin = async (req, res, next) => {
             costumer_id: req.body.costumer_id,
             username: req.body.username,
             email: req.body.email,
-            role: 'admin',
-            password: hashedPassword
-        })
-
-        const data = await user.save();
-        req.data = data;
-        next();
-    } catch (error) {
-        console.log(error);
-        const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
-        return next(err);
-    }
-}
-
-const createUser = async (req, res, next) => {
-
-    try {
-        const hashedPassword = await hashing(req.body.password);
-        const user = new User({
-            name: req.body.name,
-            costumer_id: req.body.costumer_id,
-            username: req.body.username,
-            email: req.body.email,
-            role: 'user',
+            role: req.body.role,
             password: hashedPassword
         })
 
@@ -137,8 +114,7 @@ module.exports = {
     paginate,
     byId,
     all,
-    createAdmin,
-    createUser,
+    create,
     update,
     destroy
 }

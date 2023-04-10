@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const { AbilityBuilder, createMongoAbility } = require('@casl/ability')
-const user = require('../models/userModel')
+const User = require('../models/userModel')
+const DeliveryAddress = require('../models/deliveryAddressModel')
 
 const hashing = async (plainPassword) => {
     try {
@@ -23,16 +24,14 @@ const defineAbilityFor = (user) => {
     cannot('create','User'),
     can('update','User', { user_id: user.userId }),
     can('delete', 'User', { user_id: user.userId }) 
-    can('view', 'Order'),
-    can('read','Order', { user_id: user.userId }),
-    can('read','Cart', { user_id: user.userId }),
-    can('view', 'DeliveryAddress'),
-    can('create','DeliveryAddress', { user_id: user.userId }),
+    can('read', 'DeliveryAddress'),
+    cannot('detail', 'DeliveryAddress'),
+    can('view', 'DeliveryAddress',  { user_id: user.userId }),
+    can('create','DeliveryAddress'),
     can('update','DeliveryAddress', { user_id: user.userId }),
-    can('delete', 'DeliveryAddress', { user_id: user.userId }),
-    can('read', 'Invoice', { user_id: user.userId })
+    can('delete', 'DeliveryAddress', { user_id: user.userId })
   } else {
-    can('manage', 'all')
+    can('read', 'Product')
   }
   return build();
 }

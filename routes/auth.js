@@ -19,14 +19,15 @@ router.post(
           }
           const userField = {
             name: user.name,
-            _id: user._id
+            _id: user._id,
+            role: user.role
           }
           req.login(
             user,
             { session: false },
             async (error) => {
               if (error) return next(error);
-              const token = jwt.sign({ userId: user._id, name: user.name }, 'myscreet', { expiresIn: '1800s' });
+              const token = jwt.sign({ userId: user._id, name: user.name, role: user.role }, 'myscreet', { expiresIn: '1800s' });
               return res.status(200).json({ message: 'success', data: { user: userField, token }});
             }
           );

@@ -8,6 +8,6 @@ const tagSchema = new Schema ({
         maxlength: [50, 'maksimal karakter harus kurang dari 50'],
         required: [true, 'nama harus di isi']
     }
-})
+}, {timestamps: true})
 
 module.exports = mongoose.model('Tag', tagSchema)

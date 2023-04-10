@@ -25,8 +25,28 @@ const accessValidate = (action, subject) => {
     }
 }
 
+const accessValidateUser = (action, subject) => {
+    return (req, res, next) => {
+        const id = req.params.user_id
+        const authorized = defineAbilityFor(req.user);
+        let isAuthorized
+        if (id) {
+            const userAccess = new User({ user_id: new ObjectId(id) })
+            isAuthorized = authorized.can(action, userAccess)
+        } else {
+            isAuthorized = authorized.can(action, subject)
+        }
+        if (!isAuthorized) {
+            const error = new HttpError(UNAUTHORIZED_USER, NOT_AUTHENTICATED_CODE, UNAUTHORIZED);
+            return next(error);
+        }
+        return next()
+    }
+}
+
 
 
 module.exports = {
-    accessValidate
+    accessValidate,
+    accessValidateUser
 }

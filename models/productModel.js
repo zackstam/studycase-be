@@ -29,10 +29,10 @@ const productSchema = new Schema ({
         ref: 'Categorie'
     },
 
-    tag: {
+    tag: [{
         type: Schema.Types.ObjectId,
         ref: 'Tag'
-    }
+    }]
 
 }, {toJSON: { getters: true }, timestamps: true} )
 

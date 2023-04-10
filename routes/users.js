@@ -1,17 +1,17 @@
 const express = require('express');
 const userController = require('../controllers/userController');
+const userMiddleware = require('../middleware/userMiddleware')
 const { accessValidate } = require('../middleware/accessRole');
 const { authorized } = require('../middleware/passportErrorMiddleware');
 const router = express.Router();
 
 
 router.get('/paginate', authorized, accessValidate('read', 'User'), userController.paginate);
-router.get('/:pid', authorized, accessValidate('view', 'User'), userController.byId)
+router.get('/:pid', authorized, userMiddleware.validateById, accessValidate('view', 'User'), userController.byId)
 router.get('/', authorized, userController.all);
-router.post('/admin', authorized, accessValidate('create', 'User'), userController.createAdmin);
-router.post('/users', authorized, accessValidate('create', 'User'), userController.createUser);
-router.patch('/:pid', authorized, accessValidate('update', 'User'), userController.update);
-router.delete('/:pid', authorized, accessValidate('delete', 'User'), userController.destroy);
+router.post('/', authorized, accessValidate('create', 'User'), userController.create);
+router.patch('/:pid', authorized, userMiddleware.validateById, accessValidate('update', 'User'), userController.update);
+router.delete('/:pid', authorized, userMiddleware.validateById, accessValidate('delete', 'User'), userController.destroy);
 
 
 module.exports = router;
