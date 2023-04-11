@@ -6,6 +6,9 @@ class Entity {
   
 class User extends Entity {}
 
+class DeliveryAddress extends Entity {}
+
 module.exports = {
-    User
+    User,
+    DeliveryAddress
 }
