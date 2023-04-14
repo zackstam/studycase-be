@@ -48,7 +48,7 @@ const paginate = async (req, res, next) => {
             next();
         }
         req.data = {
-            tags: data,
+            Users: data,
             count
         };
         next();

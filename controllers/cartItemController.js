@@ -1,6 +1,6 @@
 const Product = require('../models/productModel')
-const Category = require('../models/categoriesModel')
-const Tag = require('../models/tagModel')
+const User = require('../models/userModel')
+const CartItem = require('../models/cartItemModel')
 const HttpError = require('../interface/httpError');
 const { DATA_NOT_FOUND_CODE, GENERAL_ERROR_CODE } = require('../constant/errorCode');
 const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
@@ -9,16 +9,16 @@ const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
     try {
-        const { name, description, price, image } = req.body;
-        const categories = await Category.findOne({ name: req.body.category });
-        const tags = await Tag.find({ name: { $in: req.body.tag } });
-        const payload = new Product({
+        const { name, qty, price, image, user } = req.body;
+       
+        const products = await Product.findOne({ name: req.body.product });
+        const payload = new CartItem({
             name: name,
-            description: description,
+            qty: qty,
             price: price,
             image: image,
-            category: categories._id,
-            tag: tags.map(tag => tag._id)
+            user: user,
+            product: products._id
         });
         const data = await payload.save();
         
@@ -32,7 +32,7 @@ const create = async (req, res, next) => {
 
 const all = async (req, res, next) => {
     try{
-        const data = await Product.find().populate('category').populate('tag');
+        const data = await CartItem.find().populate('user').populate('product');
         
         req.data = data;
         next();
@@ -45,7 +45,7 @@ const all = async (req, res, next) => {
 const byId = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        const data = await Product.findById(id).populate('category').populate('tag');
+        const data = await CartItem.findById(id).populate('user').populate('product');
         
         req.data = data;
         next();
@@ -58,16 +58,15 @@ const byId = async (req, res, next) => {
 const update = async (req, res, next) => {
     try {
         const id = req.params.pid;
-        const { name, description, price, image } = req.body;
-        const categories = await Category.findOne({ name: req.body.category });
-        const tags = await Tag.find({ name: { $in: req.body.tag } });
-        const data = await Product.findByIdAndUpdate(id, {
+        const { name, qty, price, image } = req.body;
+        
+        const products = await Product.findOne({ name: req.body.product });
+        const data = await CartItem.findByIdAndUpdate(id, {
             name: name,
-            description: description,
+            qty: qty,
             price: price,
             image: image,
-            category: categories._id,
-            tag: tags.map(tag => tag._id)
+            product: products._id
         }, { new: true });
 
         await data.save();
@@ -82,7 +81,7 @@ const update = async (req, res, next) => {
 const destroy = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        await Product.findByIdAndRemove(id);
+        await CartItem.findByIdAndRemove(id);
         
         req.data = true;
         next();
@@ -94,7 +93,7 @@ const destroy = async (req, res, next) => {
 
 const pagination = async (req, res, next) => {
     try{
-        let { skip = 0, limit = 10, page = '', q = '', category = '', tag = '' } = req.query;
+        let { skip = '', limit = '', page = '', q = '', user = '', product = '' } = req.query;
 
         let criteria = {};
 
@@ -105,31 +104,35 @@ const pagination = async (req, res, next) => {
             }
         }
 
-        if(category.length){
-            let categories = await Category.findOne({name: {$regex: `${category}`}, $options: 'i'});
+        if(user.length){
+            let users = await user.find({name: {$in: user}});
 
-            if(categories){
-                criteria = {...criteria, category: categories._id};
+            if(users){
+                criteria = {...criteria, user: {$in: users.map(user => user._id)}};
             }
         }
-        if(tag.length){
-            let tags = await Tag.find({name: {$in: tag}});
+        if(product.length){
+            let products = await product.find({name: {$in: product}});
 
-            if(tags.length > 0){
-                criteria = {...criteria, tag: {$in: tags.map(tag => tag._id)}};
+            if(products.length > 0){
+                criteria = {...criteria, product: {$in: products.map(product => product._id)}};
             }
         }
 
-        let count = await Product.find().countDocuments();
-        let data = await Product
+        let count = await CartItem.find().countDocuments();
+        let data = await CartItem
         .find(criteria)
         .skip(parseInt(skip))
         .limit(parseInt(limit))
         .page(parseInt(page))
-        .populate('category')
-        .populate('tag');
+        .populate('user')
+        .populate('product');
         
-        return res.status(200).json({ message: generalMessage.SUCCESS, data: data, count });
+        req.data = {
+            CartItem: data,
+            count
+        }
+        next();
     }catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err)

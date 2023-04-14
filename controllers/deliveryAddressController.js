@@ -57,7 +57,7 @@ const byId = async (req, res, next) => {
 const update = async (req, res, next) => {
     try {
         const id = req.params.pid;
-        const { nama, provinsi, kabupaten, kecamatan, kelurahan, detail, user } = req.body;
+        const { nama, provinsi, kabupaten, kecamatan, kelurahan, detail } = req.body;
 
         const data = await DeliveryAddress.findByIdAndUpdate(id, {
             nama: nama,
@@ -65,8 +65,7 @@ const update = async (req, res, next) => {
             kabupaten: kabupaten,
             kecamatan: kecamatan,
             kelurahan: kelurahan,
-            detail: detail,
-            user: user
+            detail: detail
         }, { new: true });
 
         await data.save();

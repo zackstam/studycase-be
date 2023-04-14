@@ -93,7 +93,7 @@ const pagination = async (req, res, next) => {
         .limit(parseInt(limit));
         
         req.data = {
-            Category: data,
+            Tags: data,
             count
         };
         next();

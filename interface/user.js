@@ -8,7 +8,10 @@ class User extends Entity {}
 
 class DeliveryAddress extends Entity {}
 
+class CartItem extends Entity {}
+
 module.exports = {
     User,
-    DeliveryAddress
+    DeliveryAddress,
+    CartItem
 }
