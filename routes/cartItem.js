@@ -18,9 +18,9 @@ const storage = multer.diskStorage({
   })
 const upload = multer({ storage })
 
-router.get('/paginate', authorized, accessValidateUser('detail', 'CartItem'), cartItemController.pagination);
+router.get('/paginate/:user_id', authorized, accessValidateUser('paginate', 'CartItem'), cartItemController.pagination);
 router.get('/:pid/user/:user_id', authorized, cartItemMiddleware.validateById, accessValidateUser('view', 'CartItem'), cartItemController.byId)
-router.get('/', authorized, accessValidateUser('detail', 'CartItem'), cartItemController.all);
+router.get('/:user_id', authorized, accessValidateUser('view', 'CartItem'), cartItemController.all);
 router.post('/:user_id', authorized, accessValidateCartItem('create', 'CartItem'), upload.single('image'), uploadFileMiddleware.getFileName, cartItemController.create);
 router.patch('/:pid/user/:user_id', authorized, accessValidateUser('update', 'CartItem'), upload.single('image'), uploadFileMiddleware.getFileName, cartItemMiddleware.validateById, cartItemController.update);
 router.delete('/:pid/user/:user_id', authorized, cartItemMiddleware.validateById, accessValidateUser('delete', 'CartItem'), cartItemController.destroy);

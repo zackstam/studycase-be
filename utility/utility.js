@@ -30,11 +30,15 @@ const defineAbilityFor = (user) => {
     can('create','DeliveryAddress', { user_id: user.userId }),
     can('update','DeliveryAddress', { user_id: user.userId }),
     can('delete', 'DeliveryAddress', { user_id: user.userId }),
-    cannot('detail', 'CartItem'),
+    can('paginate', 'CartItem',  { user_id: user.userId }),
     can('view', 'CartItem',  { user_id: user.userId }),
     can('create','CartItem', { user_id: user.userId }),
     can('update','CartItem', { user_id: user.userId }),
-    can('delete', 'CartItem', { user_id: user.userId })
+    can('delete', 'CartItem', { user_id: user.userId }),
+    can('paginate', 'Order',  { user_id: user.userId }),
+    can('view', 'Order',  { user_id: user.userId }),
+    can('create','Order', { user_id: user.userId }),
+    can('view', 'Invoice',  { user_id: user.userId })
   } else {
     can('read', 'Product')
   }

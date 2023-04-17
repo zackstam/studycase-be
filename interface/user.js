@@ -10,8 +10,14 @@ class DeliveryAddress extends Entity {}
 
 class CartItem extends Entity {}
 
+class Order extends Entity {}
+
+class Invoice extends Entity {}
+
 module.exports = {
     User,
     DeliveryAddress,
-    CartItem
+    CartItem,
+    Order,
+    Invoice
 }

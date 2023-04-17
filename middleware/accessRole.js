@@ -3,7 +3,7 @@ const { UNAUTHORIZED_USER } = require('../constant/errorMessage');
 const { NOT_AUTHENTICATED_CODE } = require('../constant/errorCode');
 const { UNAUTHORIZED } = require('../constant/errorHttp');
 const HttpError = require('../interface/httpError');
-const { User, DeliveryAddress, CartItem } = require('../interface/user');
+const { User, DeliveryAddress, CartItem, Order, Invoice } = require('../interface/user');
 const { ObjectId } = require('bson');
 const deliveryAddressModel = require('../models/deliveryAddressModel');
 const cartItemModel = require('../models/cartItemModel')
@@ -87,9 +87,51 @@ const accessValidateCartItem = (action, subject) => {
     }
 }
 
+const accessValidateOrder = (action, subject) => {
+    return async (req, res, next) => {
+        const id = req.params.user_id
+        console.log(id);
+        const authorized = defineAbilityFor(req.user);
+        let isAuthorized
+        if (id) {
+            const userAccess = new Order({ user_id: new ObjectId(id) })
+            isAuthorized = authorized.can(action, userAccess)
+        } else {
+            isAuthorized = authorized.can(action, subject)
+        }
+        if (!isAuthorized) {
+            const error = new HttpError(UNAUTHORIZED_USER, NOT_AUTHENTICATED_CODE, UNAUTHORIZED);
+            return next(error);
+        }
+        return next()
+    }
+}
+
+const accessValidateInvoice = (action, subject) => {
+    return (req, res, next) => {
+        const id = req.params.order_id
+        console.log(id);
+        const authorized = defineAbilityFor(req.user);
+        let isAuthorized
+        if (id) {
+            const userAccess = new Invoice({ user_id: new ObjectId(id) })
+            isAuthorized = authorized.can(action, userAccess)
+        } else {
+            isAuthorized = authorized.can(action, subject)
+        }
+        if (!isAuthorized) {
+            const error = new HttpError(UNAUTHORIZED_USER, NOT_AUTHENTICATED_CODE, UNAUTHORIZED);
+            return next(error);
+        }
+        return next()
+    }
+}
+
 module.exports = {
     accessValidate,
     accessValidateUser,
     accessValidateDelivery,
-    accessValidateCartItem
+    accessValidateCartItem,
+    accessValidateOrder,
+    accessValidateInvoice
 }

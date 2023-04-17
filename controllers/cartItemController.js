@@ -9,16 +9,16 @@ const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
     try {
-        const { name, qty, price, image, user } = req.body;
-       
-        const products = await Product.findOne({ name: req.body.product });
+        const { name, qty, price, image, product } = req.body;
+        
+        const user = {user_id: user.userId}
         const payload = new CartItem({
             name: name,
             qty: qty,
             price: price,
             image: image,
             user: user,
-            product: products._id
+            product: product
         });
         const data = await payload.save();
         
@@ -58,15 +58,14 @@ const byId = async (req, res, next) => {
 const update = async (req, res, next) => {
     try {
         const id = req.params.pid;
-        const { name, qty, price, image } = req.body;
+        const { name, qty, price, image, product } = req.body;
         
-        const products = await Product.findOne({ name: req.body.product });
         const data = await CartItem.findByIdAndUpdate(id, {
             name: name,
             qty: qty,
             price: price,
             image: image,
-            product: products._id
+            product: product
         }, { new: true });
 
         await data.save();
