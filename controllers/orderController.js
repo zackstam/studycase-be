@@ -22,7 +22,6 @@ const create = async (req, res, next) => {
         const order = new Order({
             _id: new Types.ObjectId(),
             status: res.status(number.ONE).json(WAITING_PAYMENT_STATUS),
-            delivery_fee: delivery_fee,
             delivery_address: {
                 provinsi: address.provinsi,
                 kabupaten: address.kabupaten,
@@ -30,14 +29,15 @@ const create = async (req, res, next) => {
                 kelurahan: address.kelurahan,
                 detail: address.detail
             },
+            delivery_fee: delivery_fee,
             user: req.user._id 
         });
         const orderItems = await OrderItem.insertMany(items.map(item => ({
             ...item,
             name: item.product.name,
-            qty: parseInt(item.qty),
+            description: item.product.description,
             price: parseInt(item.product.price),
-            order: order._id,
+            qty: parseInt(item.qty),
             product: item.product._id
         })));
         orderItems.forEach(item => order.order_items.push(item));

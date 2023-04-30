@@ -17,7 +17,7 @@ const create = async (req, res, next) => {
             kecamatan: kecamatan,
             kelurahan: kelurahan,
             detail: detail,
-            user: user
+            user: req.params.user._id
         });
         const data = await payload.save();
         
