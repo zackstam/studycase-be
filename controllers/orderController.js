@@ -11,15 +11,10 @@ const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
     try {
-        const {delivery_fee, delivery_address} = req.body;
-        const items = await CartItem.find({user: req.user._id}).populate('product');
-        if (!items) {
-            const error = new HttpError(DATA_NOT_FOUND_MESSAGE, DATA_NOT_FOUND_CODE, BAD_REQUEST);
-            return next(error);
-        }
+        const {delivery_fee, delivery_address, order_items} = req.body;
 
         const address = await DeliveryAddress.findById(delivery_address);
-        const order = new Order({
+        const payloadOrder = new Order({
             _id: new Types.ObjectId(),
             status: res.status(number.ONE).json(WAITING_PAYMENT_STATUS),
             delivery_address: {
@@ -32,17 +27,16 @@ const create = async (req, res, next) => {
             delivery_fee: delivery_fee,
             user: req.user._id 
         });
-        const orderItems = await OrderItem.insertMany(items.map(item => ({
-            ...item,
-            name: item.product.name,
-            description: item.product.description,
-            price: parseInt(item.product.price),
+        const order = payloadOrder.save();
+        const orderItems = await OrderItem.insertMany(order_items.map(item => ({
+            name: item.name,
+            description: item.description,
+            price: parseInt(item.price),
             qty: parseInt(item.qty),
-            product: item.product._id
+            product: item.product_id,
+            order: order._id.toString()
         })));
-        orderItems.forEach(item => order.order_items.push(item));
-        order.save();
-        await CartItem.deleteMany({user: req.user._id});
+        order.orderItems = orderItems;
         req.data = order;
         next();
     }catch(err) {
