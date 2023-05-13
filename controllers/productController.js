@@ -9,19 +9,16 @@ const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
     try {
-        const { name, description, price, image } = req.body;
-        const categories = await Category.findOne({ name: req.body.category });
-        const tags = await Tag.find({ name: { $in: req.body.tag } });
+        const { name, description, price, image, category, tag } = req.body;
         const payload = new Product({
             name: name,
             description: description,
             price: price,
             image: image,
-            category: categories._id,
-            tag: tags.map(tag => tag._id)
+            category,
+            tag
         });
         const data = await payload.save();
-        
         req.data = data;
         next();
     } catch(err) {

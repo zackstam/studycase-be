@@ -9,11 +9,17 @@ const generalMessage = {
     SUCCESS: 'SUCCESS'
 }
 
+const statusPayment = {
+    WAITING: 'waiting_payment',
+    PAID: 'paid',
+}
+
 
 
 module.exports = {
     number,
-    generalMessage
+    generalMessage,
+    statusPayment
 }
 
 

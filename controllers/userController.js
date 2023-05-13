@@ -64,7 +64,6 @@ const create = async (req, res, next) => {
         const hashedPassword = await hashing(req.body.password);
         const user = new User({
             name: req.body.name,
-            costumer_id: req.body.costumer_id,
             username: req.body.username,
             email: req.body.email,
             role: req.body.role,
@@ -75,7 +74,6 @@ const create = async (req, res, next) => {
         req.data = data;
         next();
     } catch (error) {
-        console.log(error);
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
         return next(err);
     }

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
+const { portApp, product, dbHost } = require('../config/index');
 
 const orderItemSchema = new Schema ({
 
@@ -21,11 +22,14 @@ const orderItemSchema = new Schema ({
         type: Number,
         required: true
     },
-
-    product: {
-        type: Schema.Types.ObjectId,
-        ref: 'Product'
+    image: { 
+        type: String, 
+        get: (data) => `${dbHost}:${portApp}/${product}`  + data
     },
+    order: {
+        type: mongoose.Types.ObjectId,
+        ref: "Order"
+    }
 });
 
 module.exports = model('OrderItem', orderItemSchema);

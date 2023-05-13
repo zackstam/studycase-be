@@ -22,7 +22,7 @@ const productSchema = new Schema ({
     image: { 
         type: String, 
         get: (data) => `${dbHost}:${portApp}/${product}`  + data
-      },
+    },
 
     category: {
         type: Schema.Types.ObjectId,

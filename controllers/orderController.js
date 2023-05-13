@@ -4,19 +4,18 @@ const Order = require('../models/ordersModel');
 const { Types } = require('mongoose');
 const OrderItem = require('../models/order-itemModel');
 const HttpError = require('../interface/httpError');
-const { DATA_NOT_FOUND_CODE, GENERAL_ERROR_CODE } = require('../constant/errorCode');
-const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
-const { WAITING_PAYMENT_STATUS, DATA_NOT_FOUND_MESSAGE, GENERAL_ERROR_MESSAGE } = require('../constant/errorMessage');
-const { number, generalMessage } = require('../constant/app');
+const { GENERAL_ERROR_CODE } = require('../constant/errorCode');
+const { ERROR_SERVER } = require('../constant/errorHttp');
+const { GENERAL_ERROR_MESSAGE } = require('../constant/errorMessage');
+const { number, statusPayment } = require('../constant/app');
 
 const create = async (req, res, next) => {
     try {
-        const {delivery_fee, delivery_address, order_items} = req.body;
-
+        const { delivery_fee, delivery_address, order_items } = req.body;
         const address = await DeliveryAddress.findById(delivery_address);
         const payloadOrder = new Order({
             _id: new Types.ObjectId(),
-            status: res.status(number.ONE).json(WAITING_PAYMENT_STATUS),
+            status: statusPayment.WAITING,
             delivery_address: {
                 provinsi: address.provinsi,
                 kabupaten: address.kabupaten,
@@ -27,17 +26,20 @@ const create = async (req, res, next) => {
             delivery_fee: delivery_fee,
             user: req.user._id 
         });
-        const order = payloadOrder.save();
+        const order = await payloadOrder.save();
         const orderItems = await OrderItem.insertMany(order_items.map(item => ({
             name: item.name,
             description: item.description,
             price: parseInt(item.price),
             qty: parseInt(item.qty),
-            product: item.product_id,
-            order: order._id.toString()
+            image: item.image,
+            order: order._id
         })));
-        order.orderItems = orderItems;
-        req.data = order;
+        const orderItemsId = orderItems.map(item => item._id);
+        const newOrder = await Order.findByIdAndUpdate(order._id, { order_items: orderItemsId }, {
+            new: true
+        });
+        req.data = newOrder;
         next();
     }catch(err) {
         const error = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER);

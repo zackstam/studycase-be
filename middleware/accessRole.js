@@ -30,7 +30,6 @@ const accessValidate = (action, subject) => {
 const accessValidateUser = (action, subject) => {
     return (req, res, next) => {
         const id = req.params.user_id
-        console.log(id);
         const authorized = defineAbilityFor(req.user);
         let isAuthorized
         if (id) {
@@ -50,7 +49,6 @@ const accessValidateUser = (action, subject) => {
 const accessValidateDelivery = (action, subject) => {
     return (req, res, next) => {
         const id = req.params.user_id
-        console.log(id);
         const authorized = defineAbilityFor(req.user);
         let isAuthorized
         if (id) {
@@ -70,7 +68,6 @@ const accessValidateDelivery = (action, subject) => {
 const accessValidateCartItem = (action, subject) => {
     return async (req, res, next) => {
         const id = req.params.user_id
-        console.log(id);
         const authorized = defineAbilityFor(req.user);
         let isAuthorized
         if (id) {
@@ -90,7 +87,6 @@ const accessValidateCartItem = (action, subject) => {
 const accessValidateOrder = (action, subject) => {
     return async (req, res, next) => {
         const id = req.params.user_id
-        console.log(id);
         const authorized = defineAbilityFor(req.user);
         let isAuthorized
         if (id) {
@@ -110,7 +106,6 @@ const accessValidateOrder = (action, subject) => {
 const accessValidateInvoice = (action, subject) => {
     return (req, res, next) => {
         const id = req.params.order_id
-        console.log(id);
         const authorized = defineAbilityFor(req.user);
         let isAuthorized
         if (id) {
