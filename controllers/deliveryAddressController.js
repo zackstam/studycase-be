@@ -1,4 +1,5 @@
-const Tag = require('../models/tagModel')
+const DeliveryAddress = require('../models/deliveryAddressModel')
+const User = require('../models/userModel')
 const HttpError = require('../interface/httpError');
 const { DATA_NOT_FOUND_CODE, GENERAL_ERROR_CODE } = require('../constant/errorCode');
 const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
@@ -7,8 +8,17 @@ const { number, generalMessage } = require('../constant/app');
 
 const create = async (req, res, next) => {
     try {
-        const { name } = req.body;
-        const payload = new Tag({name});
+        const { nama, provinsi, kabupaten, kecamatan, kelurahan, detail, user } = req.body;
+
+        const payload = new DeliveryAddress({
+            nama: nama,
+            provinsi: provinsi,
+            kabupaten: kabupaten,
+            kecamatan: kecamatan,
+            kelurahan: kelurahan,
+            detail: detail,
+            user: req.params.user._id
+        });
         const data = await payload.save();
         
         req.data = data;
@@ -21,7 +31,7 @@ const create = async (req, res, next) => {
 
 const all = async (req, res, next) => {
     try{
-        const data = await Tag.find();
+        const data = await DeliveryAddress.find().populate('user');
         
         req.data = data;
         next();
@@ -34,8 +44,8 @@ const all = async (req, res, next) => {
 const byId = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        const data = await Tag.findById(id);
-
+        const data = await DeliveryAddress.findById(id).populate('user');
+        
         req.data = data;
         next();
     } catch (error) {
@@ -45,25 +55,32 @@ const byId = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
-    const id = req.params.pid;
-    const { name } = req.body;
     try {
-        const data = await Tag.findByIdAndUpdate(id, { name }, {
-            new: true
-        });
-        
-        req.data = data;
-        next();
-    } catch (error) {
-        const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)
-        return next(err)
-    }
+        const id = req.params.pid;
+        const { nama, provinsi, kabupaten, kecamatan, kelurahan, detail } = req.body;
+
+        const data = await DeliveryAddress.findByIdAndUpdate(id, {
+            nama: nama,
+            provinsi: provinsi,
+            kabupaten: kabupaten,
+            kecamatan: kecamatan,
+            kelurahan: kelurahan,
+            detail: detail
+        }, { new: true });
+
+        await data.save();
+            req.data = data;
+            next();
+        } catch (error) {
+            const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER);
+            return next(err)
+        }
 }
 
 const destroy = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        await Tag.findByIdAndRemove(id);
+        await DeliveryAddress.findByIdAndRemove(id);
         
         req.data = true;
         next();
@@ -75,7 +92,7 @@ const destroy = async (req, res, next) => {
 
 const pagination = async (req, res, next) => {
     try{
-        let { skip = 0, limit = 10, q = ''} = req.query;
+        let { skip = '', limit = '', page = '', q = '', user = '' } = req.query;
 
         let criteria = {};
 
@@ -86,16 +103,26 @@ const pagination = async (req, res, next) => {
             }
         }
 
-        let count = await Tag.find().countDocuments();
-        let data = await Tag
+        if(user.length){
+            let users = await User.find({name: {$in: user}});
+
+            if(users){
+                criteria = {...criteria, user: {$in: users.map(user => user._id)}};
+            }
+        }
+
+        let count = await DeliveryAddress.find().countDocuments();
+        let data = await DeliveryAddress
         .find(criteria)
         .skip(parseInt(skip))
-        .limit(parseInt(limit));
+        .limit(parseInt(limit))
+        .page(parseInt(page))
+        .populate('user');
         
         req.data = {
-            Tags: data,
+            DeliveryAddress: data,
             count
-        };
+        }
         next();
     }catch (error) {
         const err = new HttpError(GENERAL_ERROR_MESSAGE, GENERAL_ERROR_CODE, ERROR_SERVER)

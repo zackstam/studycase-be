@@ -7,15 +7,12 @@
 var app = require('../app');
 var debug = require('debug')('studycase-backend-ferdy:server');
 var http = require('http');
-const mongoose = require('mongoose');
-const { dbHost, dbPort, dbName } = require('../config');
-console.log(dbHost, dbPort, dbName);
-const urlConnection = `mongodb://${dbHost}:${dbPort}/${dbName}`
+const db = require('../database/index')
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '3021');
 app.set('port', port);
 
 /**
@@ -28,15 +25,13 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-mongoose.connect(urlConnection)
-.then(() => {
-  server.listen(port);
+db.on('open', function(){
+  server.listen(port, () => {
+    console.log(`server running in port ${port}`);
+  })
   server.on('error', onError);
   server.on('listening', onListening);
-})
-.catch(err => {
-    console.log('ada error ');
-    console.log(err);
+  console.log('connection onto database success');
 })
 
 

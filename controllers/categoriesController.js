@@ -1,4 +1,4 @@
-const Tag = require('../models/tagModel')
+const Category = require('../models/categoriesModel')
 const HttpError = require('../interface/httpError');
 const { DATA_NOT_FOUND_CODE, GENERAL_ERROR_CODE } = require('../constant/errorCode');
 const { BAD_REQUEST, ERROR_SERVER } = require('../constant/errorHttp');
@@ -8,7 +8,7 @@ const { number, generalMessage } = require('../constant/app');
 const create = async (req, res, next) => {
     try {
         const { name } = req.body;
-        const payload = new Tag({name});
+        const payload = new Category({name});
         const data = await payload.save();
         
         req.data = data;
@@ -21,7 +21,7 @@ const create = async (req, res, next) => {
 
 const all = async (req, res, next) => {
     try{
-        const data = await Tag.find();
+        const data = await Category.find();
         
         req.data = data;
         next();
@@ -34,7 +34,7 @@ const all = async (req, res, next) => {
 const byId = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        const data = await Tag.findById(id);
+        const data = await Category.findById(id);
 
         req.data = data;
         next();
@@ -48,7 +48,7 @@ const update = async (req, res, next) => {
     const id = req.params.pid;
     const { name } = req.body;
     try {
-        const data = await Tag.findByIdAndUpdate(id, { name }, {
+        const data = await Category.findByIdAndUpdate(id, { name }, {
             new: true
         });
         
@@ -63,7 +63,7 @@ const update = async (req, res, next) => {
 const destroy = async (req, res, next) => {
     const id = req.params.pid;
     try {
-        await Tag.findByIdAndRemove(id);
+        await Category.findByIdAndRemove(id);
         
         req.data = true;
         next();
@@ -86,14 +86,14 @@ const pagination = async (req, res, next) => {
             }
         }
 
-        let count = await Tag.find().countDocuments();
-        let data = await Tag
+        let count = await Category.find().countDocuments();
+        let data = await Category
         .find(criteria)
         .skip(parseInt(skip))
         .limit(parseInt(limit));
         
         req.data = {
-            Tags: data,
+            Category: data,
             count
         };
         next();

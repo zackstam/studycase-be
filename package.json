@@ -6,6 +6,8 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "@casl/ability": "^6.3.3",
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^16.0.3",
@@ -13,9 +15,15 @@
     "express-validator": "^6.15.0",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.5.1",
+    "mime": "^2.4.4",
     "mongoose": "^7.0.1",
-    "mongoose-unique-validator": "^3.1.0",
-    "morgan": "~1.9.1"
+    "mongoose-sequence": "^5.3.1",
+    "morgan": "~1.9.1",
+    "multer": "^1.4.5-lts.1",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.21"
